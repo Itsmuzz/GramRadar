@@ -1,52 +1,46 @@
 from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 import joblib
 import uvicorn
 
+# App initialization
 app = FastAPI()
 
-# CORS for frontend
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Mount static files and templates
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
-# Load model
+# Load your trained ML model
 model = joblib.load("fake_follower_model.pkl")
 
-class InstaProfile(BaseModel):
-    followers: int
-    following: int
-    posts: int
-    bio: str
-    has_dp: bool
-    avg_likes: int
-    avg_comments: int
+@app.get("/", response_class=HTMLResponse)
+async def home(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
-@app.post("/predict")
-def predict(profile: InstaProfile):
-    bio_len = len(profile.bio)
-    follow_ratio = profile.following / profile.followers if profile.followers else 0
-    engagement = (profile.avg_likes + profile.avg_comments) / profile.followers if profile.followers else 0
+@app.get("/predict")
+async def predict(username: str):
+    # In real use, you'll fetch real Instagram data here
+    # For now, mock input features
+    dummy_features = extract_features(username)
 
-    features = [[
-        profile.followers,
-        profile.following,
-        profile.posts,
-        bio_len,
-        int(profile.has_dp),
-        profile.avg_likes,
-        profile.avg_comments,
-        follow_ratio,
-        engagement
-    ]]
+    try:
+        prediction = model.predict([dummy_features])[0]
+        confidence = model.predict_proba([dummy_features])[0].max()
+        result = {
+            "username": username,
+            "result": "Fake" if prediction == 1 else "Real",
+            "confidence": f"{confidence*100:.2f}%"
+        }
+        return JSONResponse(content=result)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)})
 
-    pred = model.predict(features)
-    return {"result": "Fake" if pred[0] == 1 else "Real"}
+# Dummy feature extractor (replace with real logic later)
+def extract_features(username):
+    return [0.5, 0.2, 0.7, 0.4, 0.9]  # Example: bio score, dp flag, engagement, etc.
 
-# For local testing
-# if __name__ == "__main__":
-#     uvicorn.run(app, host="0.0.0.0", port=10000)
+# Run only locally
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
