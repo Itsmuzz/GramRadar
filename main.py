@@ -1,46 +1,50 @@
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 import joblib
 import uvicorn
 
-# App initialization
-app = FastAPI()
-
-# Mount static files and templates
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
-
-# Load your trained ML model
+# Load the trained model
 model = joblib.load("fake_follower_model.pkl")
 
-@app.get("/", response_class=HTMLResponse)
-async def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+# Define app
+app = FastAPI()
 
-@app.get("/predict")
-async def predict(username: str):
-    # In real use, you'll fetch real Instagram data here
-    # For now, mock input features
-    dummy_features = extract_features(username)
+# Allow frontend access (CORS)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-    try:
-        prediction = model.predict([dummy_features])[0]
-        confidence = model.predict_proba([dummy_features])[0].max()
-        result = {
-            "username": username,
-            "result": "Fake" if prediction == 1 else "Real",
-            "confidence": f"{confidence*100:.2f}%"
-        }
-        return JSONResponse(content=result)
-    except Exception as e:
-        return JSONResponse(content={"error": str(e)})
+# Request data structure
+class AccountData(BaseModel):
+    followers: int
+    following: int
+    posts: int
+    has_profile_picture: int  # 1 or 0
+    bio_length: int
+    is_private: int           # 1 or 0
+    engagement_rate: float
 
-# Dummy feature extractor (replace with real logic later)
-def extract_features(username):
-    return [0.5, 0.2, 0.7, 0.4, 0.9]  # Example: bio score, dp flag, engagement, etc.
+# Home route
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to GramRadar AI"}
 
-# Run only locally
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+# Prediction route
+@app.post("/predict")
+def predict(data: AccountData):
+    features = [[
+        data.followers,
+        data.following,
+        data.posts,
+        data.has_profile_picture,
+        data.bio_length,
+        data.is_private,
+        data.engagement_rate
+    ]]
+    prediction = model.predict(features)
+    is_fake = bool(prediction[0])
+    return {"is_fake": is_fake}
