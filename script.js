@@ -1,30 +1,26 @@
-const form = document.getElementById("scanForm");
+const form = document.getElementById("usernameForm");
 const resultBox = document.getElementById("resultBox");
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
+  const username = document.getElementById("username").value.trim();
 
-  const formData = new FormData(form);
-  const data = {};
-  formData.forEach((val, key) => {
-    data[key] = isNaN(val) ? val : parseFloat(val);
-  });
+  if (!username) return;
 
-  resultBox.innerHTML = "⏳ Scanning...";
+  resultBox.innerHTML = "⏳ Scanning @" + username + "...";
 
   try {
-    const res = await fetch("https://gramradar.onrender.com/predict", {
+    const res = await fetch("https://gramradar.onrender.com/scan", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
+      body: JSON.stringify({ username })
     });
 
     const json = await res.json();
     resultBox.innerHTML = json.is_fake
-      ? "<span class='fake'>❌ Fake Account Detected</span>"
-      : "<span class='real'>✅ Real Account Detected</span>";
+      ? `❌ @${username} seems like a FAKE account`
+      : `✅ @${username} looks REAL!`;
   } catch (err) {
-    resultBox.innerHTML = "⚠️ Error: Unable to contact AI server.";
-    console.error(err);
+    resultBox.innerHTML = "⚠️ Failed to fetch user data.";
   }
 });
