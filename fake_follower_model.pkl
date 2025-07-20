@@ -1,0 +1,7 @@
+# model = joblib.load("fake_follower_model.pkl")
+# Replace with mock model temporarily
+class DummyModel:
+    def predict(self, X):
+        return [random.choice([0, 1]) for _ in X]
+
+model = DummyModel()
