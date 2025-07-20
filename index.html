@@ -1,14 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>GramRadar – Instagram Fake Follower Checker</title>
+    <meta charset="UTF-8">
+    <title>Instagram Follower Checker</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <h2>Scan Instagram Account</h2>
-  <input id="username" placeholder="Enter Instagram username" />
-  <button onclick="scan()">Scan</button>
-  <pre id="result">Result will appear here...</pre>
-
-  <script src="script.js"></script>
+    <div class="container">
+        <h1>Instagram Fake Follower Checker</h1>
+        <form action="/predict" method="post">
+            <input type="number" name="followers" placeholder="Followers" required>
+            <input type="number" name="following" placeholder="Following" required>
+            <input type="number" name="posts" placeholder="Total Posts" required>
+            <button type="submit">Check Now</button>
+        </form>
+        {% if result %}
+            <div class="result">{{ result }}</div>
+        {% endif %}
+    </div>
+    <script src="/static/script.js"></script>
 </body>
 </html>
