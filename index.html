@@ -2,37 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>GramRadar - Fake Follower Detector</title>
+  <title>GramRadar - AI Username Scanner</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
-    <h1>📊 GramRadar</h1>
-    <p>AI-Powered Fake Follower Detector</p>
-    
-    <form id="scanForm">
-      <input type="number" placeholder="Followers" name="followers" required />
-      <input type="number" placeholder="Following" name="following" required />
-      <input type="number" placeholder="Posts" name="posts" required />
-      
-      <select name="has_profile_picture" required>
-        <option value="">Profile Picture?</option>
-        <option value="1">Yes</option>
-        <option value="0">No</option>
-      </select>
-      
-      <input type="number" placeholder="Bio Length" name="bio_length" required />
-      
-      <select name="is_private" required>
-        <option value="">Account Private?</option>
-        <option value="1">Yes</option>
-        <option value="0">No</option>
-      </select>
-      
-      <input type="number" step="0.01" placeholder="Engagement Rate (e.g. 2.5)" name="engagement_rate" required />
-      
-      <button type="submit">🔍 Scan Account</button>
+    <h1>📲 GramRadar</h1>
+    <p>Enter Instagram username to detect fake followers using AI</p>
+
+    <form id="usernameForm">
+      <input type="text" id="username" placeholder="@username" required />
+      <button type="submit">🔍 Scan</button>
     </form>
 
     <div id="resultBox"></div>
