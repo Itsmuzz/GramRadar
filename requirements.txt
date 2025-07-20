@@ -1,6 +1,5 @@
 fastapi
 uvicorn
-jinja2
-joblib
 scikit-learn
-numpy
+joblib
+instaloader
