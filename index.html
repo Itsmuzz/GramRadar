@@ -1,23 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Instagram Follower Checker</title>
-    <link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GramRadar - Fake Follower Detector</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #1c1c1c, #292929);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      justify-content: center;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      background: linear-gradient(90deg, #ff416c, #ff4b2b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .container {
+      background: #111;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(255, 75, 43, 0.2);
+      max-width: 400px;
+      width: 100%;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    input, button {
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+
+    input {
+      background: #333;
+      color: white;
+    }
+
+    button {
+      background: #ff4b2b;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #ff416c;
+    }
+
+    #result {
+      margin-top: 15px;
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: scale(0.9); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Instagram Fake Follower Checker</h1>
-        <form action="/predict" method="post">
-            <input type="number" name="followers" placeholder="Followers" required>
-            <input type="number" name="following" placeholder="Following" required>
-            <input type="number" name="posts" placeholder="Total Posts" required>
-            <button type="submit">Check Now</button>
-        </form>
-        {% if result %}
-            <div class="result">{{ result }}</div>
-        {% endif %}
-    </div>
-    <script src="/static/script.js"></script>
+  <h1>GramRadar</h1>
+  <div class="container">
+    <input type="text" id="followers" placeholder="Followers" />
+    <input type="text" id="following" placeholder="Following" />
+    <input type="text" id="posts" placeholder="Total Posts" />
+    <input type="text" id="avg_likes" placeholder="Average Likes" />
+    <input type="text" id="avg_comments" placeholder="Average Comments" />
+    <input type="text" id="bio" placeholder="Bio" />
+    <input type="text" id="has_dp" placeholder="Has Profile Picture? (true/false)" />
+    <button onclick="checkProfile()">Check Fake Follower</button>
+    <div id="result"></div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
