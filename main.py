@@ -2,15 +2,11 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import joblib
-import uvicorn
+import instaloader
 
-# Load the trained model
 model = joblib.load("fake_follower_model.pkl")
-
-# Define app
 app = FastAPI()
 
-# Allow frontend access (CORS)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,33 +14,34 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Request data structure
-class AccountData(BaseModel):
-    followers: int
-    following: int
-    posts: int
-    has_profile_picture: int  # 1 or 0
-    bio_length: int
-    is_private: int           # 1 or 0
-    engagement_rate: float
+class UsernameRequest(BaseModel):
+    username: str
 
-# Home route
 @app.get("/")
-def read_root():
-    return {"message": "Welcome to GramRadar AI"}
+def root():
+    return {"message": "GramRadar AI is live!"}
 
-# Prediction route
-@app.post("/predict")
-def predict(data: AccountData):
-    features = [[
-        data.followers,
-        data.following,
-        data.posts,
-        data.has_profile_picture,
-        data.bio_length,
-        data.is_private,
-        data.engagement_rate
-    ]]
-    prediction = model.predict(features)
-    is_fake = bool(prediction[0])
-    return {"is_fake": is_fake}
+@app.post("/scan")
+def scan_user(req: UsernameRequest):
+    try:
+        loader = instaloader.Instaloader()
+        profile = instaloader.Profile.from_username(loader.context, req.username)
+
+        followers = profile.followers
+        following = profile.followees
+        posts = profile.mediacount
+        has_pic = 1 if profile.profile_pic_url else 0
+        bio_len = len(profile.biography or "")
+        is_private = 1 if profile.is_private else 0
+        engagement_rate = (profile.mediacount / followers) * 100 if followers else 0
+
+        features = [[
+            followers, following, posts,
+            has_pic, bio_len, is_private, engagement_rate
+        ]]
+        prediction = model.predict(features)
+        is_fake = bool(prediction[0])
+
+        return {"is_fake": is_fake}
+    except Exception as e:
+        return {"error": str(e)}
